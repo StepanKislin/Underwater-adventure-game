@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌊 Батискаф: Глубоководная экспедиция</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud" class="hidden">
+    <div class="hud-group">
+        <div class="hud-item">👤 <strong id="playerNameDisplay">Игрок</strong></div>
+        <div class="hud-item">⏱ <span id="timer">00:00</span></div>
+        <div class="hud-item counter crystals">💎 <span id="crystals">0</span>/<span id="crystalsNeeded">5</span></div>
+    </div>
+    <div class="hud-group">
+        <div class="hud-item">❤️ <div class="bar"><div id="health-fill" class="bar-fill" style="width:100%"></div></div></div>
+        <div class="hud-item">🫁 <div class="bar"><div id="oxygen-fill" class="bar-fill" style="width:100%"></div></div></div>
+        <div class="hud-item counter sonar">📡 <span id="sonar">0</span></div>
+    </div>
+</div>
+
+<div id="menu" class="overlay">
+    <h1>🌊 БАТИСКАФ</h1>
+    <p>Исследуй глубины океана • Собирай кристаллы • Избегай мин и акул • Держись как можно дольше!</p>
+    <input type="text" id="playerName" placeholder="Введите ваше имя" maxlength="20" autocomplete="off" autofocus>
+    <select id="difficulty">
+        <option value="easy">🟢 Лёгкий — для новичков</option>
+        <option value="medium" selected>🟡 Средний — оптимальный вызов</option>
+        <option value="hard">🔴 Сложный — только для экспертов</option>
+    </select>
+    <button id="startBtn" class="btn" disabled>🚀 Начать погружение</button>
+    <p style="margin-top:25px;font-size:0.95rem;opacity:0.85"><strong>Управление:</strong> WASD / Стрелки • <strong>Сонар:</strong> E • <strong>Пауза:</strong> P</p>
+</div>
+
+<div id="countdown" class="overlay hidden"><h1 id="countNum">3</h1></div>
+
+<div id="pause" class="paused-overlay">
+    <div class="pause-card">
+        <h2>⏸ ПАУЗА</h2>
+        <p>Игра приостановлена. Нажмите <strong>P</strong> или кнопку ниже.</p>
+        <div class="pause-btns">
+            <button id="resumeBtn" class="btn btn-success">▶ Продолжить</button>
+            <button id="pauseMenuBtn" class="btn btn-secondary">🏠 В меню</button>
+        </div>
+    </div>
+</div>
+
+<div id="results" class="overlay hidden">
+    <h1>🏁 Экспедиция завершена</h1>
+    <div class="results-card">
+        <p>👤 Игрок <strong id="resName">—</strong></p>
+        <p id="resDeathReason"></p>
+        <p>⏱ Время погружения <strong id="resTime">00:00</strong></p>
+        <p>💎 Собрано кристаллов <strong id="resCrystals">0</strong></p>
+        <p id="apiStatus" style="margin-top:8px;font-size:0.95rem;opacity:0.95"></p>
+    </div>
+    <div class="btn-group">
+        <button id="retryBtn" class="btn btn-success">🔄 Повторить</button>
+        <button id="showLeaderboardBtn" class="btn btn-secondary">🏆 Рекорды</button>
+        <button id="downloadJsonBtn" class="btn btn-secondary">💾 Скачать JSON</button>
+        <button id="menuBtn" class="btn btn-danger">🏠 В меню</button>
+    </div>
+</div>
+
+<div id="leaderboard" class="overlay hidden">
+    <h1>🏆 ТАБЛИЦА РЕКОРДОВ</h1>
+    <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;">
+        <label style="opacity:0.9">Фильтр:</label>
+        <select id="lbDifficulty" style="padding:10px 16px;margin:0;min-width:150px;">
+            <option value="all">🌐 Все уровни</option>
+            <option value="easy">🟢 Лёгкий</option>
+            <option value="medium">🟡 Средний</option>
+            <option value="hard">🔴 Сложный</option>
+        </select>
+        <button class="btn btn-secondary" onclick="game.showLeaderboard()" style="padding:10px 20px;margin:0">🔄</button>
+    </div>
+    <div class="results-card">
+        <table>
+            <thead><tr><th>#</th><th>Игрок</th><th>Уровень</th><th>Время</th><th>💎</th><th>Дата</th></tr></thead>
+            <tbody id="lbBody"></tbody>
+        </table>
+    </div>
+    <div class="btn-group">
+        <button class="btn btn-success" onclick="document.getElementById('leaderboard').classList.add('hidden');document.getElementById('menu').classList.remove('hidden');game.stopAllTimers();game.state='menu';">🏠 В меню</button>
+        <button class="btn btn-secondary" onclick="game.downloadResults()">💾 Скачать JSON</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
