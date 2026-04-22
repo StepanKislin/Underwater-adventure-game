@@ -12,7 +12,7 @@
 
 ## 🚀 Как запустить
 1. Скачайте или клонируйте репозиторий.
-2. Убедитесь, что в корневой папке находятся изображения: `bg.jpg`, `player.png`, `shark.png`, `bomb.png`, `crystall.png`, `healer.png`, `kislorod.png`, `sonar.png`.
+2. Убедитесь, что в папке `img` находятся изображения: `bg.jpg`, `player.png`, `shark.png`, `bomb.png`, `crystall.png`, `healer.png`, `kislorod.png`, `sonar.png`.
 3. Откройте `index.html` в браузере (рекомендуется Google Chrome или Edge).
 4. Введите имя, выберите сложность и начните погружение.
 
