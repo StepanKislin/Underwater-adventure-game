@@ -56,7 +56,7 @@ class Game {
 
         this.bindEvents();
 
-        const imgs = { bg: 'bg.jpg', player: 'player.png', shark: 'shark.png', bomb: 'bomb.png', crystal: 'crystall.png', healer: 'healer.png', oxygen: 'kislorod.png', sonar: 'sonar.png' };
+        const imgs = { bg: 'img/bg.jpg', player: 'img/player.png', shark: 'img/shark.png', bomb: 'img/bomb.png', crystal: 'img/crystall.png', healer: 'img/healer.png', oxygen: 'img/kislorod.png', sonar: 'img/sonar.png' };
         this.images = {};
         for (const [key, src] of Object.entries(imgs)) { this.images[key] = new Image(); this.images[key].src = src; }
 
@@ -227,6 +227,7 @@ class Game {
         this.updatePlayer(dt, d);
         this.spawnObjects(now, d);
         this.updateObjects(dt, d);
+        this.checkObjectCollisions();
         this.updateParticles(dt);
         this.updateBgBubbles(dt);
         this.updateShark(dt);
@@ -269,21 +270,23 @@ class Game {
         if (now - this.lastSpawn.crystal > 1100) { this.spawn('crystal', d); this.lastSpawn.crystal = now; }
         if (now - this.lastSpawn.mine > 1100) { this.spawn('mine', d); this.lastSpawn.mine = now; }
         if (now - this.lastSpawn.capsule > 1800) { this.spawn('capsule', d); this.lastSpawn.capsule = now; }
-        if (d.repair && now - this.lastSpawn.healer > 6000) { this.spawn('healer', d); this.lastSpawn.healer = now; }
+        if (d.repair && now - this.lastSpawn.healer > 10000) { this.spawn('healer', d); this.lastSpawn.healer = now; }
     }
 
     spawn(type, d) {
-        const x = Math.random() * (this.canvas.width - 80);
-        let obj = { type, x, y: -70, size: 48, speed: 2.0, marked: false, picked: false };
+        let size = 48, img = '', damage = 0, speed = 2.0;
         if (type === 'mine') {
-            const types = { 'S': { size: 40, damage: 10, speed: 2.5, img: 'bomb' }, 'M': { size: 56, damage: 20, speed: 1.8, img: 'bomb' }, 'L': { size: 72, damage: 30, speed: 1.3, img: 'bomb' } };
+            const types = { 'S': { size: 32, damage: 10, speed: 2.5 }, 'M': { size: 44, damage: 20, speed: 1.8 }, 'L': { size: 56, damage: 30, speed: 1.3 } };
             const t = d.mines[Math.floor(Math.random() * d.mines.length)];
-            Object.assign(obj, types[t]);
-        } else if (type === 'crystal') { obj.img = 'crystal'; }
-        else if (type === 'capsule') { obj.img = 'oxygen'; obj.size = 52; }
-        else if (type === 'healer') { obj.img = 'healer'; obj.size = 52; }
-        const tooClose = this.objects[type + 's'].some(o => Math.abs(o.x - obj.x) < 70 && Math.abs(o.y - obj.y) < 70);
-        if (!tooClose) this.objects[type + 's'].push(obj);
+            size = types[t].size; damage = types[t].damage; speed = types[t].speed; img = 'bomb';
+        } else if (type === 'crystal') { size = 40; img = 'crystal'; }
+        else if (type === 'capsule') { size = 44; img = 'oxygen'; }
+        else if (type === 'healer') { size = 44; img = 'healer'; }
+
+        this.objects[type + 's'].push({
+            type, x: Math.random() * (this.canvas.width - size) + size/2,
+            y: -size, size, speed, damage, marked: false, picked: false, img
+        });
     }
 
     updateObjects(dt, d) {
@@ -291,10 +294,28 @@ class Game {
         for (const arr of Object.values(this.objects)) {
             for (let i = arr.length - 1; i >= 0; i--) {
                 const obj = arr[i];
-                if (!obj || obj.picked) continue;
+                if (!obj || obj.picked) { arr.splice(i, 1); continue; }
                 obj.y += obj.speed * d.speedMult * speedMult;
-                if (obj.y > this.canvas.height + 80) { arr.splice(i, 1); continue; }
-                if (obj.type === 'mine') obj.marked = this.sonarActive;
+                if (obj.y > this.canvas.height + 100) arr.splice(i, 1);
+                else if (obj.type === 'mine') obj.marked = this.sonarActive;
+            }
+        }
+    }
+
+    checkObjectCollisions() {
+        const mines = this.objects.mines.filter(m => !m.picked);
+        const others = [...this.objects.crystals, ...this.objects.capsules, ...this.objects.healers].filter(o => !o.picked);
+        for (const mine of mines) {
+            for (const other of others) {
+                if (this.intersect({x: mine.x, y: mine.y, w: mine.size, h: mine.size}, {x: other.x, y: other.y, w: other.size, h: other.size})) {
+                    mine.picked = true;
+                    other.picked = true;
+                    const cx = (mine.x + mine.size/2 + other.x + other.size/2) / 2;
+                    const cy = (mine.y + mine.size/2 + other.y + other.size/2) / 2;
+                    this.addParticle(cx, cy, '#ff4757', 20);
+                    this.addParticle(cx, cy, '#feca57', 10);
+                    break;
+                }
             }
         }
     }
@@ -308,12 +329,12 @@ class Game {
     }
 
     addParticle(x, y, color, count = 8) {
-        for (let i = 0; i < count; i++) this.particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 1, color, size: Math.random() * 4 + 2 });
+        for (let i = 0; i < count; i++) this.particles.push({ x, y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8, life: 1, color, size: Math.random() * 5 + 2 });
     }
 
     updateParticles(dt) {
         for (let i = this.particles.length - 1; i >= 0; i--) {
-            const p = this.particles[i]; p.x += p.vx; p.y += p.vy; p.life -= dt * 2; p.vy += 0.1;
+            const p = this.particles[i]; p.x += p.vx; p.y += p.vy; p.life -= dt * 1.5; p.vy += 0.15;
             if (p.life <= 0) { this.particles.splice(i, 1); continue; }
         }
     }
@@ -375,9 +396,10 @@ class Game {
         const boat = { x: this.boat.x, y: this.boat.y, w: this.boatSize, h: this.boatSize };
 
         if (this.intersect(boat, sharkBox)) {
-            this.health = Math.max(0, this.health - 20); this.shake = 10;
-            this.addParticle(this.sharkPos.x + this.sharkSize/2, this.sharkPos.y + this.sharkSize/2, '#ff4757', 18);
-            this.notify('🦈 Акула укусила!', 'error');
+            this.health = Math.max(0, this.health - 20);
+            this.shake = 15;
+            this.addParticle(this.sharkPos.x + this.sharkSize/2, this.sharkPos.y + this.sharkSize/2, '#ff4757', 35);
+            this.notify('🦈 Акула подорвалась о корпус!', 'error');
             this.sharkActive = false;
             this.sharkTimer = setTimeout(() => this.spawnShark(), 6000);
             return;
@@ -389,7 +411,7 @@ class Game {
             if (!m || m.picked) continue;
             if (this.intersect(sharkBox, { x: m.x, y: m.y, w: m.size, h: m.size })) {
                 this.sharkActive = false; m.picked = true; mines.splice(i, 1);
-                this.addParticle(this.sharkPos.x + this.sharkSize/2, this.sharkPos.y + this.sharkSize/2, '#ff6b6b', 30);
+                this.addParticle(m.x + m.size/2, m.y + m.size/2, '#ff6b6b', 25);
                 this.notify('💣 Акула подорвалась на мине!', 'success');
                 this.shake = 8;
                 this.sharkTimer = setTimeout(() => this.spawnShark(), 7000 + Math.random() * 4000);
@@ -416,10 +438,19 @@ class Game {
         const crysEl = document.getElementById('crystals');
         if (timerEl) timerEl.textContent = String(Math.floor(this.elapsed/60)).padStart(2,'0') + ':' + String(this.elapsed%60).padStart(2,'0');
         if (crysEl) crysEl.textContent = this.crystals;
+
         const hf = document.getElementById('health-fill');
         const of = document.getElementById('oxygen-fill');
-        if (hf) hf.style.width = Math.max(0, Math.min(100, this.health)) + '%';
+        const ov = document.getElementById('oxygen-val'); // ✅ Добавлено
+
+        if (hf) {
+            const h = Math.max(0, Math.min(100, this.health));
+            hf.style.width = h + '%';
+            document.getElementById('health-val').textContent = Math.round(h) + '%';
+        }
         if (of) of.style.width = Math.max(0, Math.min(100, this.oxygen)) + '%';
+        if (ov) ov.textContent = Math.round(this.oxygen) + '%'; // ✅ Добавлено
+
         const s = document.getElementById('sonar');
         if (s) s.textContent = this.sonarCharge;
         document.body.classList.toggle('shark-warning', this.sharkWarning);

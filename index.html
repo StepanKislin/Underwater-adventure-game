@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌊 Батискаф: Глубоководная экспедиция</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <canvas id="game"></canvas>
@@ -16,8 +16,14 @@
         <div class="hud-item counter crystals">💎 <span id="crystals">0</span>/<span id="crystalsNeeded">5</span></div>
     </div>
     <div class="hud-group">
-        <div class="hud-item">❤️ <div class="bar"><div id="health-fill" class="bar-fill" style="width:100%"></div></div></div>
-        <div class="hud-item">🫁 <div class="bar"><div id="oxygen-fill" class="bar-fill" style="width:100%"></div></div></div>
+        <div class="hud-item">❤️
+            <div class="bar"><div id="health-fill" class="bar-fill" style="width:100%"></div></div>
+            <span id="health-val" class="percent-text">100%</span>
+        </div>
+        <div class="hud-item">💨
+            <div class="bar"><div id="oxygen-fill" class="bar-fill" style="width:100%"></div></div>
+            <span id="oxygen-val" class="percent-text">100%</span>
+        </div>
         <div class="hud-item counter sonar">📡 <span id="sonar">0</span></div>
     </div>
 </div>
@@ -89,6 +95,6 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+<script src="js/script.js"></script>
 </body>
 </html>

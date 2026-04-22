@@ -27,11 +27,11 @@ canvas { display: block; width: 100vw; height: 100vh; image-rendering: auto; }
 .overlay input, .overlay select {
     margin: 10px 0; padding: 14px 24px; font-size: clamp(1rem, 2.5vw, 1.2rem);
     border: 2px solid rgba(0,251,255,0.5); border-radius: 50px;
-    background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px); transition: all 0.3s;
+    background: rgba(255,255,255,0.95); color: #001a33; backdrop-filter: blur(10px); transition: all 0.3s;
     min-width: 250px; max-width: 90vw;
 }
-.overlay input:focus, .overlay select:focus { outline: none; border-color: #00fbff; box-shadow: 0 0 20px rgba(0,251,255,0.4); background: rgba(255,255,255,0.15); }
-.overlay input::placeholder { color: rgba(255,255,255,0.6); }
+.overlay input:focus, .overlay select:focus { outline: none; border-color: #00fbff; box-shadow: 0 0 20px rgba(0,251,255,0.4); }
+.overlay input::placeholder { color: rgba(0,26,51,0.6); }
 
 .btn {
     margin: 8px; padding: 14px 32px; font-size: clamp(1rem, 2.5vw, 1.2rem);
@@ -71,6 +71,8 @@ canvas { display: block; width: 100vw; height: 100vh; image-rendering: auto; }
 @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
 #health-fill { background: linear-gradient(90deg, #ff6b6b 0%, #ee5a5a 30%, #ff4757 100%); box-shadow: inset 0 0 10px rgba(0,0,0,0.3); }
 #oxygen-fill { background: linear-gradient(90deg, #4facfe 0%, #00f2fe 50%, #00c6ff 100%); box-shadow: inset 0 0 10px rgba(0,0,0,0.3); }
+
+.percent-text { font-weight: 700; font-size: 0.85rem; min-width: 35px; text-align: right; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
 .counter { background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); font-weight: 600; }
 .counter.crystals { color: #feca57; }
